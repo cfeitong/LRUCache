@@ -3,17 +3,14 @@
 
 #include <unordered_map>
 #include <list>
-#include <cstdio>
 
 namespace lru {
 
-typedef int K;
-typedef int V;
 
-// template <typename K, typename V>
+template <typename K, typename P>
 class LRUCache {
-    typedef std::list<std::pair<K, V*>> CacheList;
-    typedef std::unordered_map<K, CacheList::iterator> CacheMap;
+    typedef std::list<std::pair<K, P>> CacheList;
+    typedef std::unordered_map<K, typename CacheList::iterator> CacheMap;
 
 private:
     size_t _limit;
@@ -27,19 +24,20 @@ public:
     LRUCache(const LRUCache& o) = delete;
     LRUCache(LRUCache&& o) = default;
 
-    void put(const K& key, V* ptr);
-    V* get(const K& key);
+    void put(const K& key, P ptr);
+    P get(const K& key);
     bool has(const K& key);
     void del(const K& key);
 
 }; // class LRUCache
 
-void LRUCache::_remove_least_recent() {
+template <typename K, typename P>
+void LRUCache<K, P>::_remove_least_recent() {
     del(_list.rbegin()->first);
 }
 
-V* LRUCache::get(const K& key) {
-    printf("accessing %d\n", key);
+template <typename K, typename P>
+P LRUCache<K, P>::get(const K& key) {
     auto iter = _to_list_iter[key];
     auto pointer = iter->second;
     _list.erase(iter);
@@ -48,30 +46,30 @@ V* LRUCache::get(const K& key) {
     return _list.begin()->second;
 }
 
-void LRUCache::put(const K& key, V* ptr) {
+template <typename K, typename P>
+void LRUCache<K, P>::put(const K& key, P ptr) {
     if (has(key)) {
         del(key);
     }
     if (_list.size() >= _limit) {
         _remove_least_recent();
     }
-    printf("update %d with %p(%d)\n", key, ptr, *ptr);
     _list.push_front({key, ptr});
     _to_list_iter[key] = _list.begin();
 }
 
-void LRUCache::del(const K& key) {
+template <typename K, typename P>
+void LRUCache<K, P>::del(const K& key) {
     if (!has(key)) {
-        printf("%d doesn't exits, fail removing", key);
         return;
     }
-    printf("removing %d\n", key);
     auto iter = _to_list_iter[key];
     _list.erase(iter);
     _to_list_iter.erase(key);
 }
 
-bool LRUCache::has(const K& key) {
+template <typename K, typename P>
+bool LRUCache<K, P>::has(const K& key) {
     return _to_list_iter.find(key) != _to_list_iter.end();
 }
 
