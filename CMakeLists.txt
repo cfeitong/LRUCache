@@ -4,20 +4,24 @@ project(LRUCache)
 
 find_package(Threads REQUIRED)
 
-set(PROJECT_TEST ${CMAKE_PROJECT_NAME}Test)
-set(LRUCacheTestSrc test.cpp)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-Wall -ansi -Wno-deprecated -pthread)
+add_definitions(-Wall -ansi -Wno-deprecated -pthread -g)
 
-add_executable(${PROJECT_TEST} ${LRUCacheTestSrc})
+add_executable(LRU_TEST test_lru.cpp)
+add_executable(RWLOCK_TEST test_rwlock.cpp)
 
 # setup googletest
 add_subdirectory(gtest)
 enable_testing()
 include_directories(${GTEST_INCLUDE_DIRS})
-add_dependencies(${PROJECT_TEST} gtest)
-target_link_libraries(${PROJECT_TEST} gtest gtest_main)
-add_test(lrutest ${PROJECT_TEST})
 
+add_dependencies(LRU_TEST gtest)
+add_dependencies(RWLOCK_TEST gtest)
+
+target_link_libraries(LRU_TEST gtest gtest_main)
+add_test(lrutest LRU_TEST)
+
+target_link_libraries(RWLOCK_TEST gtest gtest_main)
+add_test(rwlocktest RWLOCK_TEST)
 
